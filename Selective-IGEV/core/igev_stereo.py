@@ -8,7 +8,10 @@ from core.submodule import *
 
 
 try:
-    autocast = torch.cuda.amp.autocast
+    # Prefer new API: torch.amp.autocast('cuda', ...)
+    from torch.amp import autocast as _autocast
+    def autocast(enabled, dtype=torch.float16):
+        return _autocast('cuda', enabled=enabled, dtype=dtype)
 except:
     class autocast:
         def __init__(self, enabled):

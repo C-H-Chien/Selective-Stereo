@@ -9,7 +9,9 @@ from core.corr import CorrBlock1D, PytorchAlternateCorrBlock1D, CorrBlockFast1D,
 from core.utils.utils import coords_grid
 
 try:
-    autocast = torch.cuda.amp.autocast
+    from torch.amp import autocast as _autocast
+    def autocast(enabled, dtype=torch.float16):
+        return _autocast('cuda', enabled=enabled, dtype=dtype)
 except:
     # dummy autocast for PyTorch < 1.6
     class autocast:
