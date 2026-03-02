@@ -33,7 +33,7 @@ python evaluate_stereo.py --restore_ckpt ./pretrained_models/sceneflow.pth
 To predict Middlebury, run
 
 ```
-python demo_imgs.py --restore_ckpt ./pretrained_models/middlebury_finetune.pth --valid_iters 80 --max_disp 768
+python demo_imgs.py --restore_ckpt ./pretrained_models/middlebury_finetune.pth -l im0.png -r im1.png --valid_iters 80 --max_disp 768
 ```
 
 # Environment
