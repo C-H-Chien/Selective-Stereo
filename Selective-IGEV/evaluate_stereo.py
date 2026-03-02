@@ -12,6 +12,7 @@ from core.igev_stereo import IGEVStereo, autocast
 import core.stereo_datasets as datasets
 from core.utils.utils import InputPadder
 from PIL import Image
+from pathlib import Path
 
 import os
 os.environ['CUDA_VISIBLE_DEVICES'] = '0'
@@ -25,6 +26,7 @@ def validate_eth3d(model, iters=32, mixed_prec=False):
     model.eval()
     aug_params = {}
     val_dataset = datasets.ETH3D(aug_params)
+    print(f"image list length = {len(val_dataset)}")
 
     out_list, epe_list = [], []
     for val_id in range(len(val_dataset)):
@@ -155,7 +157,7 @@ def validate_sceneflow(model, iters=32, mixed_prec=False):
 
 
 @torch.no_grad()
-def validate_middlebury(model, iters=32, split='MiddEval3', mixed_prec=False, resolution='F'):
+def validate_middlebury(model, iters=32, split='scenes2021', mixed_prec=False, resolution='F'):
     """ Peform validation using the Middlebury-V3 dataset """
     model.eval()
     aug_params = {}
@@ -182,11 +184,15 @@ def validate_middlebury(model, iters=32, split='MiddEval3', mixed_prec=False, re
         occ_mask = Image.open(imageL_file.replace('im0.png', 'mask0nocc.png')).convert('L')
         occ_mask = np.ascontiguousarray(occ_mask, dtype=np.float32).flatten()
 
+        p = Path(imageL_file)
+        parts = p.parts
+        scene_name = p.parents[2].name if "ambient" in parts else p.parent.name
+
         val = (valid_gt.reshape(-1) >= 0.5) & (occ_mask==255)
         out = (epe_flattened > 2.0)
         image_out = out[val].float().mean().item()
         image_epe = epe_flattened[val].mean().item()
-        logging.info(f"Middlebury Iter {val_id+1} out of {len(val_dataset)}. EPE {round(image_epe,4)} D1 {round(image_out,4)}")
+        logging.info(f"Middlebury Iter {val_id+1} out of {len(val_dataset)}. Scene: {scene_name}. EPE {round(image_epe,4)} D1 {round(image_out,4)}")
         epe_list.append(image_epe)
         out_list.append(image_out)
 

@@ -178,13 +178,13 @@ class SceneFlowDatasets(StereoDataset):
         logging.info(f"Added {len(self.disparity_list) - original_length} from Driving {self.dstype}")
 
 class ETH3D(StereoDataset):
-    def __init__(self, aug_params=None, root='/data/StereoDatasets/eth3d', split='training'):
+    def __init__(self, aug_params=None, root='/gpfs/data/bkimia/Datasets/ETH3D/stereo/delivery_area/', split='training'):
         super(ETH3D, self).__init__(aug_params, sparse=True)
         assert os.path.exists(root)
 
-        image1_list = sorted( glob(osp.join(root, f'two_view_{split}/*/im0.png')) )
-        image2_list = sorted( glob(osp.join(root, f'two_view_{split}/*/im1.png')) )
-        disp_list = sorted( glob(osp.join(root, 'two_view_training_gt/*/disp0GT.pfm')) ) if split == 'training' else [osp.join(root, 'two_view_training_gt/playground_1l/disp0GT.pfm')] * len(image1_list)
+        image1_list = sorted( glob(osp.join(root, f'stereo_pairs/*/im0.png')) )
+        image2_list = sorted( glob(osp.join(root, f'stereo_pairs/*/im1.png')) )
+        disp_list = sorted( glob(osp.join(root, 'stereo_pairs/*/disp0GT.pfm')) ) if split == 'training' else [osp.join(root, 'stereo_pairs/playground_1l/disp0GT.pfm')] * len(image1_list)
 
         for img1, img2, disp in zip(image1_list, image2_list, disp_list):
             self.image_list += [ [img1, img2] ]
@@ -303,12 +303,12 @@ class KITTI(StereoDataset):
             self.disparity_list += [ disp ]
 
 class Middlebury(StereoDataset):
-    def __init__(self, aug_params=None, root='/data/StereoDatasets/middlebury', split='2014', resolution='F'):
+    def __init__(self, aug_params=None, root='/gpfs/data/bkimia/Datasets/Middlebury_Stereo/', split='scenes2021', resolution='F'):
         super(Middlebury, self).__init__(aug_params, sparse=True, reader=frame_utils.readDispMiddlebury)
         assert os.path.exists(root)
-        assert split in ["2005", "2006", "2014", "2021", "MiddEval3"]
-        if split == "2005":
-            scenes = list((Path(root) / "2005").glob("*"))
+        assert split in ["scenes2005", "scenes2006", "scenes2014", "scenes2021", "MiddEval3"]
+        if split == "scenes2005":
+            scenes = list((Path(root) / "scenes2005").glob("*"))
             for scene in scenes:
                 self.image_list += [[str(scene / "view1.png"), str(scene / "view5.png")]]
                 self.disparity_list += [str(scene / "disp1.png")]    
@@ -316,8 +316,8 @@ class Middlebury(StereoDataset):
                     for exp in ["0", "1", "2"]:       
                         self.image_list += [[str(scene / f"Illum{illum}/Exp{exp}/view1.png"), str(scene / f"Illum{illum}/Exp{exp}/view5.png")]]
                         self.disparity_list += [str(scene / "disp1.png")]        
-        elif split == "2006":
-            scenes = list((Path(root) / "2006").glob("*"))
+        elif split == "scenes2006":
+            scenes = list((Path(root) / "scenes2006").glob("*"))
             for scene in scenes:
                 self.image_list += [[str(scene / "view1.png"), str(scene / "view5.png")]]
                 self.disparity_list += [str(scene / "disp1.png")]    
@@ -325,14 +325,14 @@ class Middlebury(StereoDataset):
                     for exp in ["0", "1", "2"]:       
                         self.image_list += [[str(scene / f"Illum{illum}/Exp{exp}/view1.png"), str(scene / f"Illum{illum}/Exp{exp}/view5.png")]]
                         self.disparity_list += [str(scene / "disp1.png")]
-        elif split == "2014":
-            scenes = list((Path(root) / "2014").glob("*"))
+        elif split == "scenes2014":
+            scenes = list((Path(root) / "scenes2014").glob("*"))
             for scene in scenes:
                 for s in ["E", "L", ""]:
                     self.image_list += [ [str(scene / "im0.png"), str(scene / f"im1{s}.png")] ]
                     self.disparity_list += [ str(scene / "disp0.pfm") ]
-        elif split == "2021":
-            scenes = list((Path(root) / "2021/data").glob("*"))
+        elif split == "scenes2021":
+            scenes = list((Path(root) / "scenes2021/data").glob("*"))
             for scene in scenes:
                 self.image_list += [[str(scene / "im0.png"), str(scene / "im1.png")]]
                 self.disparity_list += [str(scene / "disp0.pfm")]
